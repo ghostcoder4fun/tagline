@@ -5,8 +5,21 @@ const rateLimit = require("express-rate-limit");
 const Joi = require("joi");
 const User = require("../models/users");
 const authMiddleware = require("../middleware/auth");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const router = express.Router();
+
+// Middleware (if this is your main file, ensure app.use(cors()) and app.use(cookieParser()) are set)
+router.use(cookieParser());
+
+// If frontend is on a different domain, enable CORS with credentials
+router.use(
+  cors({
+    origin: "http://localhost:3000", // replace with your frontend URL in production
+    credentials: true,
+  })
+);
 
 // Rate limiter for login
 const loginLimiter = rateLimit({
@@ -56,11 +69,9 @@ router.put("/update", authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Update username/email if provided
     if (username) user.username = username;
     if (email) user.email = email;
 
-    // Update password if oldPassword and newPassword provided
     if (oldPassword && newPassword) {
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) return res.status(400).json({ message: "Old password is incorrect" });
@@ -117,15 +128,29 @@ router.post("/login", loginLimiter, async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        email: user.email,
-        balance: user.balance,
-        tasksCompleted: user.tasksCompleted.length,
-      },
-    });
+    // Set cookies
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 15 * 60 * 1000, // 15 min
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      })
+      .json({
+        message: "Login successful",
+        user: {
+          username: user.username,
+          email: user.email,
+          balance: user.balance,
+          tasksCompleted: user.tasksCompleted.length,
+        },
+      });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -148,6 +173,14 @@ router.post("/refresh", async (req, res) => {
       { expiresIn: "15m" }
     );
 
+    // Update cookie
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 15 * 60 * 1000, // 15 min
+    });
+
     res.json({ accessToken: newAccessToken });
   } catch {
     res.status(401).json({ message: "Invalid or expired refresh token" });
@@ -161,6 +194,7 @@ router.get("/me", authMiddleware, async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json({
+      username: user.username,
       email: user.email,
       balance: user.balance,
       tasksCompleted: user.tasksCompleted,
