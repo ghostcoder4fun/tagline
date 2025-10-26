@@ -18,15 +18,16 @@ export default function Auth() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isLogin && form.password !== form.confirmPassword) return alert("Passwords do not match!");
+    if (!isLogin && form.password !== form.confirmPassword)
+      return alert("Passwords do not match!");
 
     setLoading(true);
     try {
       const endpoint = isLogin ? "api/users/login" : "api/users/register";
       const bodyData = isLogin
-      ? { email: form.email, password: form.password } // login
-      : { username: form.username, email: form.email, password: form.password }; // register
-    
+        ? { email: form.email, password: form.password } // login
+        : { username: form.username, email: form.email, password: form.password }; // register
+
       const response = await fetch(`${backendUrl}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,15 +39,22 @@ export default function Auth() {
       if (!response.ok) return alert(data.message || "Something went wrong");
 
       if (isLogin) {
+        // ✅ Save tokens
         Cookies.set("accessToken", data.accessToken, { expires: 7, sameSite: "Lax" });
         Cookies.set("refreshToken", data.refreshToken, { expires: 7, sameSite: "Lax" });
 
-        // ✅ Immediately update context so Navbar reacts
+        // ✅ Immediately update user context so Navbar reacts
         await fetchUser();
+
+        // ✅ Redirect to home after login
+        navigate("/");
+      } else {
+        // ✅ Registration success → redirect to login page
+        alert("Registration successful! Please login to continue.");
+        setIsLogin(true);
       }
 
       setForm({ username: "", email: "", password: "", confirmPassword: "" });
-      navigate("/");
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -140,7 +148,13 @@ export default function Auth() {
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {loading ? (isLogin ? "Logging in..." : "Registering...") : isLogin ? "Login" : "Register"}
+            {loading
+              ? isLogin
+                ? "Logging in..."
+                : "Registering..."
+              : isLogin
+              ? "Login"
+              : "Register"}
           </button>
         </form>
 
