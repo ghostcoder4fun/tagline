@@ -30,6 +30,7 @@ const loginLimiter = rateLimit({
 
 // Validation schemas
 const registerSchema = Joi.object({
+  username: Joi.string().min(2).max(50).optional(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
 });
@@ -44,7 +45,7 @@ router.post("/register", async (req, res) => {
   const { error } = registerSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
 
-  const { email, password, username } = req.body; // <-- include username
+  const { username, email, password } = req.body; // <-- include username
 
   try {
     const existingUser = await User.findOne({ email });
