@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function (req, res, next) {
-  const token = req.header("Authorization")?.split(" ")[1];
+module.exports = function authMiddleware(req, res, next) {
+  const token = req.cookies.accessToken; // ✅ read from cookie
   if (!token) return res.status(401).json({ message: "Access denied" });
 
   try {
