@@ -146,7 +146,7 @@ router.post("/login", loginLimiter, async (req, res) => {
       .json({
         message: "Login successful",
         user: {
-          username: user.username,
+          username: user.name,
           email: user.email,
           balance: user.balance,
           tasksCompleted: user.tasksCompleted.length,
@@ -195,7 +195,7 @@ router.get("/me", authMiddleware, async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json({
-      username: user.username,
+      username: user.name,
       email: user.email,
       balance: user.balance,
       tasksCompleted: user.tasksCompleted,
