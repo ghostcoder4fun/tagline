@@ -23,8 +23,10 @@ export default function Auth() {
     setLoading(true);
     try {
       const endpoint = isLogin ? "api/users/login" : "api/users/register";
-      const bodyData = { email: form.email, password: form.password };
-
+      const bodyData = isLogin
+      ? { email: form.email, password: form.password } // login
+      : { username: form.username, email: form.email, password: form.password }; // register
+    
       const response = await fetch(`${backendUrl}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

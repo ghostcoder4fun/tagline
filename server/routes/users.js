@@ -44,7 +44,7 @@ router.post("/register", async (req, res) => {
   const { error } = registerSchema.validate(req.body);
   if (error) return res.status(400).json({ message: error.details[0].message });
 
-  const { email, password } = req.body;
+  const { email, password, username } = req.body; // <-- include username
 
   try {
     const existingUser = await User.findOne({ email });
@@ -52,7 +52,11 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Email already in use" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ email, password: hashedPassword });
+    const user = new User({ 
+      name: username || "User",  // <-- set name here
+      email, 
+      password: hashedPassword 
+    });
     await user.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -60,6 +64,7 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // UPDATE USER (protected)
 router.put("/update", authMiddleware, async (req, res) => {
