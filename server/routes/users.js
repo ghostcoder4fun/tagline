@@ -130,18 +130,19 @@ router.post("/login", loginLimiter, async (req, res) => {
 
     // Set cookies
     res
-      .cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 15 * 60 * 1000, // 15 min
-      })
-      .cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      })
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,      // must be true for SameSite=None
+      sameSite: "None",  // cross-site cookie
+      maxAge: 15 * 60 * 1000,
+    })
+    .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+  
       .json({
         message: "Login successful",
         user: {
