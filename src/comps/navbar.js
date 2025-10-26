@@ -24,7 +24,7 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-black/95 border-b border-[#bf1c1c]" : "bg-transparent"}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between text-white">
-        <Link to="/" className="text-xl sm:text-2xl font-bold text-[#bf1c1c]">Tagline</Link>
+        <Link to="/" className="text-xl sm:text-2xl font-bold text-[#bf1c1c]">Vertal</Link>
 
         <div className="hidden md:flex items-center space-x-8 text-base sm:text-lg">
           <NavLink to="/">Home</NavLink>

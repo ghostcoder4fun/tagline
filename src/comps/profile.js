@@ -19,7 +19,7 @@ export default function Profile() {
     confirmPassword: "",
   });
   const navigate = useNavigate();
-  const backendUrl = "http://localhost:5000/";
+  const backendUrl = "https://tagline-production.up.railway.app/";
 
   useEffect(() => {
     if (!user) return;

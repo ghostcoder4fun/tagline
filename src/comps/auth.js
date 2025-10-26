@@ -12,7 +12,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const { fetchUser } = useContext(UserContext); // ✅ get fetchUser
 
-  const backendUrl = "http://localhost:5000/";
+  const backendUrl = "https://tagline-production.up.railway.app/";
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -43,7 +43,6 @@ export default function Auth() {
         await fetchUser();
       }
 
-      alert(isLogin ? "Login successful!" : "Account created!");
       setForm({ username: "", email: "", password: "", confirmPassword: "" });
       navigate("/");
     } catch (err) {

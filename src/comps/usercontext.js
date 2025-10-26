@@ -14,7 +14,7 @@ export function UserProvider({ children }) {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/me", {
+      const res = await fetch("https://tagline-production.up.railway.app/api/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch user");
