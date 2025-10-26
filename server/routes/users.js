@@ -69,15 +69,14 @@ router.put("/update", authMiddleware, async (req, res) => {
     const user = await User.findById(req.user.userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (username) user.username = username;
+    if (username) user.name = username; // update name
     if (email) user.email = email;
 
     if (oldPassword && newPassword) {
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) return res.status(400).json({ message: "Old password is incorrect" });
 
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      user.password = hashedPassword;
+      user.password = await bcrypt.hash(newPassword, 10);
     }
 
     await user.save();
@@ -85,7 +84,7 @@ router.put("/update", authMiddleware, async (req, res) => {
     res.json({
       message: "Profile updated successfully",
       user: {
-        username: user.username,
+        name: user.name,
         email: user.email,
         balance: user.balance,
         tasksCompleted: user.tasksCompleted.length,
@@ -96,6 +95,7 @@ router.put("/update", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // LOGIN
 router.post("/login", loginLimiter, async (req, res) => {

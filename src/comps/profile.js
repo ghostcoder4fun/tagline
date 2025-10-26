@@ -71,9 +71,9 @@ export default function Profile() {
 
       // Update user in context immediately
       updateUser({
-        name: form.username,
-        email: form.email,
-        balance: data.balance ? `$${data.balance}` : user.balance,
+        name: data.user.name,
+        email: data.user.email,
+        balance: `$${data.user.balance}`,
       });
 
       alert("Profile updated successfully!");
