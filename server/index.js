@@ -7,7 +7,7 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors({
-  origin: "http://localhost:3000", // React dev server
+  origin: "https://vertal.vercel.app", // React dev server
   credentials: true
 }));
 // Connect to DB
