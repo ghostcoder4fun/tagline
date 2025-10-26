@@ -1,26 +1,23 @@
 import { createContext, useState, useEffect } from "react";
-import Cookies from "js-cookie";
 
 export const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
 
+  // Fetch user from server
   const fetchUser = async () => {
-    const token = Cookies.get("accessToken");
-    if (!token) {
-      setUser(null);
-      return;
-    }
-
     try {
       const res = await fetch("https://tagline-production.up.railway.app/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", // ✅ send cookies
       });
-      if (!res.ok) throw new Error("Failed to fetch user");
+      if (!res.ok) {
+        setUser(null);
+        return;
+      }
       const data = await res.json();
       setUser({
-        name: data.username || data.email.split("@")[0],
+        username: data.username || data.email.split("@")[0],
         email: data.email,
         balance: `$${data.balance || 0}`,
         tasksCompleted: data.tasksCompleted.length || 0,
@@ -31,13 +28,17 @@ export function UserProvider({ children }) {
   };
 
   const updateUser = (updatedData) => {
-    setUser(prev => ({ ...prev, ...updatedData })); // ✅ replaces reference
+    setUser((prev) => ({ ...prev, ...updatedData }));
   };
 
-  const logout = () => {
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    setUser(null); // ✅ triggers re-render everywhere
+  const logout = async () => {
+    try {
+      await fetch("https://tagline-production.up.railway.app/api/users/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {}
+    setUser(null);
   };
 
   useEffect(() => {
