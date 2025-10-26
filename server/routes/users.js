@@ -16,7 +16,7 @@ router.use(cookieParser());
 // If frontend is on a different domain, enable CORS with credentials
 router.use(
   cors({
-    origin: "https://vertal.vercel.app/", // replace with your frontend URL in production
+    origin: "https://vertal.vercel.app", // replace with your frontend URL in production
     credentials: true,
   })
 );

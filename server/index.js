@@ -7,9 +7,12 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors({
-  origin: "https://vertal.vercel.app", // React dev server
-  credentials: true
+  origin: "https://vertal.vercel.app", // exact frontend URL
+  credentials: true,                   // allow cookies
+  methods: ["GET", "POST", "PUT", "DELETE"], // optional
+  allowedHeaders: ["Content-Type", "Authorization"], // optional
 }));
+
 // Connect to DB
 connectDB();
 
