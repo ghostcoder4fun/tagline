@@ -32,11 +32,6 @@ export default function Profile() {
     });
   }, [user]);
 
-  useEffect(() => {
-    if (!Cookies.get("accessToken")) {
-      navigate("/");
-    }
-  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

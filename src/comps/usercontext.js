@@ -4,12 +4,16 @@ export const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true); // ✅ loading state
+
+  const backendUrl = "https://tagline-production.up.railway.app";
 
   // Fetch user from server
   const fetchUser = async () => {
+    setLoadingUser(true);
     try {
-      const res = await fetch("https://tagline-production.up.railway.app/api/users/me", {
-        credentials: "include", // ✅ send cookies
+      const res = await fetch(`${backendUrl}/api/users/me`, {
+        credentials: "include", // send cookies
       });
       if (!res.ok) {
         setUser(null);
@@ -17,13 +21,16 @@ export function UserProvider({ children }) {
       }
       const data = await res.json();
       setUser({
-        username: data.username || data.email.split("@")[0],
+        name: data.username || data.email.split("@")[0],
         email: data.email,
         balance: `$${data.balance || 0}`,
         tasksCompleted: data.tasksCompleted.length || 0,
       });
-    } catch {
+    } catch (err) {
+      console.error("Fetch user error:", err);
       setUser(null);
+    } finally {
+      setLoadingUser(false);
     }
   };
 
@@ -33,11 +40,13 @@ export function UserProvider({ children }) {
 
   const logout = async () => {
     try {
-      await fetch("https://tagline-production.up.railway.app/api/users/logout", {
+      await fetch(`${backendUrl}/api/users/logout`, {
         method: "POST",
         credentials: "include",
       });
-    } catch {}
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
     setUser(null);
   };
 
@@ -46,7 +55,9 @@ export function UserProvider({ children }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, fetchUser, updateUser, logout }}>
+    <UserContext.Provider
+      value={{ user, loadingUser, setUser, fetchUser, updateUser, logout }}
+    >
       {children}
     </UserContext.Provider>
   );
